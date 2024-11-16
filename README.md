@@ -1,6 +1,6 @@
 # demo-react-dropdown-menu
 
-TODO
+🚁 Demo project with a "dropdown" in React
 
 ## Preview 🎉
 
