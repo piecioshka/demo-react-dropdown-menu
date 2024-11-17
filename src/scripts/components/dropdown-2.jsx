@@ -1,20 +1,40 @@
-import React from "react";
+import React, { useCallback, useEffect } from "react";
+
+const dropdowns = new Map();
 
 export const DropdownMenu = ({ label, anchorElement, items }) => {
-  const ref = React.useRef(null);
-  const [isOpen, setIsOpen] = React.useState(() => ref.current?.checked);
+  const debug = console.debug.bind(console, `[${label}]`);
+  const instance = React.useId();
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  useEffect(() => {
+    debug("initial render", { instance, isOpen });
+    dropdowns.set(instance, isOpen);
+    return () => {
+      dropdowns.delete(instance);
+    };
+  }, []);
+
+  const updateVisibility = useCallback(() => {
+    dropdowns.forEach((value, key) => {
+      if (key === instance) {
+        const newValue = !isOpen;
+        debug({ key, value, newValue });
+        dropdowns.set(key, newValue);
+        setIsOpen(newValue);
+      } else {
+        debug({ key, value, newValue: false });
+        dropdowns.set(key, false);
+        setIsOpen(false);
+      }
+    });
+  }, [instance]);
+
   return (
     <div>
       <pre>dropdown-2</pre>
-      <input type="radio" hidden ref={ref} name="x" />
       {React.cloneElement(anchorElement, {
-        onClick: () => {
-          console.log({ c: ref.current?.checked });
-          if (ref.current) {
-            ref.current.checked = !ref.current.checked;
-            setIsOpen(Boolean(ref.current?.checked));
-          }
-        },
+        onClick: updateVisibility,
       })}
       {isOpen && (
         <ul>
